@@ -4,6 +4,7 @@ from skimage import measure
 import matplotlib.pyplot as plt
 from shapely.geometry import LinearRing, LineString
 from scipy.ndimage import center_of_mass
+import tifffile as tiff
 
 def load_nucleus_and_periphery_from_files(target_nucleus_file, target_periphery_file, do_plotting=False):
     nucleus_image = skimage.io.imread(target_nucleus_file)
@@ -18,11 +19,11 @@ def load_nucleus_and_periphery_from_files(target_nucleus_file, target_periphery_
 
     periphery_contour_shape = LinearRing(periphery_contour)
     if do_plotting:
-        plt.plot(nucleus_center[0], nucleus_center[1], 'o', color='yellow')
-        plt.plot(nucleus_contour[:, 0], nucleus_contour[:, 1], linewidth=2, color = 'black')
+        plt.plot(nucleus_center[0], nucleus_center[1], 'o', color='#2ca02c', alpha=0.7)
+        plt.plot(nucleus_contour[:, 0], nucleus_contour[:, 1], linewidth=2, color = '#1f77b4', alpha=0.7)
         peri_for_plot = np.vstack([periphery_contour, periphery_contour[0, :]])
         # ax.plot(periphery_contour[:, 0], periphery_contour[:, 1], linewidth=2)
-        plt.plot(peri_for_plot[:, 0], peri_for_plot[:, 1], linewidth=2, color = 'black')
+        plt.plot(peri_for_plot[:, 0], peri_for_plot[:, 1], linewidth=2, color = '#ff7f0e', alpha=0.7)
     return nucleus_center, nucleus_contour_shape, periphery_contour_shape
 
 def get_perinuclearity_for_point(target_point, nucleus_center, nucleus_contour_shape,
@@ -128,14 +129,38 @@ def plot_perinuclearity_isolevels():
     f0.savefig('isoperinuclearity_levels.png', dpi=300)
     plt.show()
 
-def compute_perinuclearity_for_data(target_nucleus_file, target_periphery_file, target_labels_file, do_plotting=False):
-    f0 = plt.figure(1)
+def compute_perinuclearity_for_data(target_nucleus_file,
+                                    target_periphery_file, target_labels_file, do_plotting=False,
+                                    bkg_correction=0,
+                                    do_show=False):
+    f0 = plt.figure(1, figsize=(6,6))
     nucleus_center, nucleus_contour_shape, periphery_contour_shape = \
         load_nucleus_and_periphery_from_files(target_nucleus_file, target_periphery_file,
                                               do_plotting=True)
-    labels_image = skimage.io.imread(target_labels_file, plugin='pil')[:,:,0]
+    # labels_image = skimage.io.imread(target_labels_file, plugin='pil')[:,:,0] #
     # f1 = plt.figure(1)
-    plt.imshow(np.transpose(labels_image, axes=(1, 0)), alpha=0.6)  #
+    labels_image = tiff.imread(target_labels_file)[:,:,0]
+    if bkg_correction:
+        labels_image[labels_image <= bkg_correction] = bkg_correction
+        labels_image = labels_image - bkg_correction
+    # print(np.max(labels_image[:,:,0]))
+    # print(np.max(labels_image[:, :, 1]))
+    # print(np.max(labels_image[:, :, 2]))
+    plt.imshow(np.transpose(labels_image, axes=(1, 0)), alpha=0.95, cmap='Greys')  #
+    plt.tick_params(
+        axis='x',  # changes apply to the x-axis
+        which='both',  # both major and minor ticks are affected
+        bottom=False,  # ticks along the bottom edge are off
+        top=False,  # ticks along the top edge are off
+        labelbottom=False)  # labels along the bottom edge are off
+    plt.tick_params(
+        axis='y',  # changes apply to the x-axis
+        which='both',  # both major and minor ticks are affected
+        left=False,  # ticks along the bottom edge are off
+        right=False,  # ticks along the top edge are off
+        labelleft=False)  # labels along the bottom edge are off
+    if do_show:
+        plt.show()
     weights = []
     perivalues = []
     perivalues_w = []
@@ -146,10 +171,10 @@ def compute_perinuclearity_for_data(target_nucleus_file, target_periphery_file, 
                 y = i
                 P = get_perinuclearity_for_point(np.array((i,j)), nucleus_center, nucleus_contour_shape,
                                                  periphery_contour_shape, do_plotting=do_plotting)
-                if P < 0:
-                    plt.plot(i,j, 'o', color='green')
+                # if P < 0:
+                #     plt.plot(i,j, 'o', color='green')
                 perivalues.append(P)
-                for k in range(labels_image[i,j]):
+                for k in range(int(round(labels_image[i,j]/50))):
                     perivalues_w.append(P)
                 # weights.append(labels_image[i,j])
             # if i>300:
@@ -165,27 +190,20 @@ def compute_perinuclearity_for_data(target_nucleus_file, target_periphery_file, 
     # weights = np.load('weights.npy')
     # hist = np.histogram(perivalues, bins=20)#, weights=weights)
     # plt.imshow(labels_image[:,:,0])
+    f0.savefig(target_labels_file + '_overlays.png', dpi=400)
     f2 = plt.figure(2)
-    plt.hist(perivalues_w, bins=100, density=True) #weights=weights,
+    plt.hist(perivalues_w, bins=np.linspace(-1,1,100), density=True) #weights=weights,
     # plt.hist(perivalues, bins=200, color='green', density=True, alpha = 0.5)  # weights=weights,
     plt.xlim(-1,1)
-    f2.savefig(target_labels_file + 'hist.png', dpi=400)
+    f2.savefig(target_labels_file + '_hist.png', dpi=400)
+    f0.clf()
+    f2.clf()
+    del f0
+    del f2
 
 if __name__ == '__main__':
-    # compute_perinuclearity_for_data(
-    #     target_nucleus_file='data/MCF7 80-20 24h/11 MCF7 8020 24h exp#2 Black nucleous.tif',
-    #     target_periphery_file='data/MCF7 80-20 24h/11 MCF7 8020 24h exp#2 Black outside.tif',
-    #     target_labels_file='data/MCF7 80-20 24h/11 MCF7 8020 24h exp#2 bg400 r_RGB.tif'
-    # )
-    compute_perinuclearity_for_data(
-        target_nucleus_file='data/MCF7 Control cell/Control/11_C_Black nucleous.tif',
-        target_periphery_file='data/MCF7 Control cell/Control/11_C_Black outside.tif',
-        target_labels_file="data/MCF7 Control cell/Control/11_MCf7 LT 50nM 30' no NPs bg700 r l1600_RGB.tif",
-        do_plotting=True
+    test_perinuclearity(
+            target_nucleus_file='data/MCF7 Control cell/Control/11_C_Black nucleous.tif',
+            target_periphery_file='data/MCF7 Control cell/Control/11_C_Black outside.tif',
+            target_dic_file="data/MCF7 Control cell/Control/11_MCf7 LT 50nM 30' no NPs bg700 td l250-1700_RGB.tif"
     )
-
-    # test_perinuclearity(
-    #         target_nucleus_file='data/MCF7 Control cell/Control/11_C_Black nucleous.tif',
-    #         target_periphery_file='data/MCF7 Control cell/Control/11_C_Black outside.tif',
-    #         target_dic_file="data/MCF7 Control cell/Control/11_MCf7 LT 50nM 30' no NPs bg700 td l250-1700_RGB.tif"
-    # )
