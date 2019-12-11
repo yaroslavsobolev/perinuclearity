@@ -5,8 +5,6 @@ import seaborn as sns
 from scipy import stats
 
 def print_stattests(perivalues_w, perivalues_for_test):
-    print(1)
-    return True
     ks_here = stats.ks_2samp(perivalues_w, perivalues_for_test)
     tt_here = stats.ttest_ind(perivalues_w, perivalues_for_test, equal_var=True)
     mw_here = stats.mannwhitneyu(perivalues_w, perivalues_for_test, alternative='two-sided')
@@ -33,6 +31,8 @@ def append_data(cellname, npy_file_8020, npy_file_control):
     datalist[0] = np.concatenate((datalist[0], perivalues_w))
     datalist[1] = datalist[1] + ["80:20"] * len(perivalues_w)
     datalist[2] = datalist[2] + [cellname] * len(perivalues_w)
+
+    # print_stattests(perivalues_w, perivalues_for_test)
 
 # celllines = ["Rat2", "MCF7", "HT1080", "CCD1058sk", "SKBR3", "MEF"]
 for cellname in ["SKBR3", "MCF7"]:
