@@ -40,14 +40,14 @@ for cellname in ["SKBR3", "MCF7"]:
                 'data/{0} 8020_overall_perivalues.npy'.format(cellname),
                 'data/{0} Control_overall_perivalues.npy'.format(cellname))
 
-append_data("MDA231\n12h", 'data/MDA231 8020 12h_overall_perivalues.npy', 'data/MDA231 Control_overall_perivalues.npy')
-append_data("MDA231\n24h", 'data/MDA231 8020 24h_overall_perivalues.npy', 'data/MDA231 Control_overall_perivalues.npy')
+# append_data("MDA231\n12h", 'data/MDA231 8020 12h_overall_perivalues.npy', 'data/MDA231 Control_overall_perivalues.npy')
+append_data("MDA231", 'data/MDA231 8020 24h_overall_perivalues.npy', 'data/MDA231 Control_overall_perivalues.npy')
 for cellname in ["HT1080"]:
     append_data(cellname,
                 'data/{0} 8020_overall_perivalues.npy'.format(cellname),
                 'data/{0} Control_overall_perivalues.npy'.format(cellname))
-append_data("MCF10A\n12h", 'data/MCF10A 8020 12h_overall_perivalues.npy', 'data/MCF10A Control_overall_perivalues.npy')
-append_data("MCF10A\n24h", 'data/MCF10A 8020 24h_overall_perivalues.npy', 'data/MCF10A Control_overall_perivalues.npy')
+# append_data("MCF10A\n12h", 'data/MCF10A 8020 12h_overall_perivalues.npy', 'data/MCF10A Control_overall_perivalues.npy')
+append_data("MCF10A", 'data/MCF10A 8020 24h_overall_perivalues.npy', 'data/MCF10A Control_overall_perivalues.npy')
 for cellname in ["MEF", "Rat2", "CCD1058sk"]:
     append_data(cellname,
                 'data/{0} 8020_overall_perivalues.npy'.format(cellname),

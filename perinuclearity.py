@@ -79,10 +79,14 @@ def get_perinuclearity_for_point(target_point, nucleus_center, nucleus_contour_s
     return norm_metrics
 
 # Display the image and make illustration for perinuclearity
-def test_perinuclearity(target_nucleus_file, target_periphery_file, target_dic_file):
+def test_perinuclearity(target_nucleus_file, target_periphery_file, target_dic_file, target_labels_file=False):
     fig, ax = plt.subplots()
-    dic = skimage.io.imread(target_dic_file, plugin='pil')
-    ax.imshow(np.transpose(dic, axes=(1,0,2)), alpha=0.6) #
+    if not target_labels_file:
+        dic = skimage.io.imread(target_dic_file, plugin='pil')
+        ax.imshow(np.transpose(dic, axes=(1,0,2)), alpha=0.6) #
+    else:
+        labels_image = tiff.imread(target_labels_file)[:, :, 0]
+        ax.imshow(np.transpose(labels_image, axes=(1, 0)), alpha=1.0, cmap='Greys')  #
     nucleus_center, nucleus_contour_shape, periphery_contour_shape = \
         load_nucleus_and_periphery_from_files(target_nucleus_file, target_periphery_file,
                                               do_plotting=True)
@@ -93,21 +97,21 @@ def test_perinuclearity(target_nucleus_file, target_periphery_file, target_dic_f
     # ax.plot(ray1.xy[0], ray1.xy[1])
     # ax.plot(nucl_intersection[0], nucl_intersection[1], 'o', color='blue')
     # ax.plot(peri_intersection[0], peri_intersection[1], 'o', color='red')
-    # ax.plot(target_point[0], target_point[1], 'o', color='green', markersize=10)
+    ax.plot(target_point[0], target_point[1], 'o', color='green', markersize=10)
     ax.plot(nucleus_center[0], nucleus_center[1], 'o', color='yellow')
     ax.axis('image')
     ax.set_xticks([])
     ax.set_yticks([])
-    fig.savefig('illustration2.png', dpi=400)
+    fig.savefig('illustration2_b.png', dpi=400)
     # plt.show()
 
 def plot_perinuclearity_isolevels():
-    f0 = plt.figure(1)
-    target_nucleus_file = 'data/MCF7 80-20 24h/11 MCF7 8020 24h exp#2 Black nucleous.tif'
-    target_periphery_file = 'data/MCF7 80-20 24h/11 MCF7 8020 24h exp#2 Black outside.tif'
+    f0, ax = plt.subplots(1)
+    target_nucleus_file = 'data/MCF7 8020/11_MCF7 8020 black nucleous.tif'
+    target_periphery_file = 'data/MCF7 8020/11_MCF7 8020 black outside.tif'
     nucleus_center, nucleus_contour_shape, periphery_contour_shape = \
         load_nucleus_and_periphery_from_files(target_nucleus_file, target_periphery_file,
-                                              do_plotting=True)
+                                              do_plotting=False)
     xs = np.arange(1,1000,5)
     ys = np.arange(1,1000,5)
     xv, yv = np.meshgrid(xs, ys)
@@ -122,11 +126,20 @@ def plot_perinuclearity_isolevels():
                 zs[i,j] = 1
     # f3 = plt.figure(3)
     # mask = zs < 1
-    plt.contour(xv, yv, zs, levels = np.linspace(-1, 1, 11), cmap='coolwarm')
+    levels = [-0.6, -0.3, 0, 0.3, 0.6, 0.99]
+    CS = ax.contour(xv, yv, zs, levels = levels, cmap='coolwarm')
     plt.xlim(-20, 1000)
     plt.ylim(-20, 1000)
-    plt.colorbar()
-    f0.savefig('isoperinuclearity_levels.png', dpi=300)
+    ax.set_aspect(1.0)
+    # plt.colorbar()
+    # class nf(float):
+    #     def __repr__(self):
+    #         s = f'{self:.1f}'
+    #         return f'{self:.0f}' if s[-1] == '0' else s
+    # CS.levels = [nf(val) for val in CS.levels]
+    manual_locations = [(338, 277), (292, 461), (398, 180), (403, 572), (465, 704), (522, 885)]
+    ax.clabel(CS, inline=True, fmt='%1.1f', fontsize=10, manual=manual_locations)
+    f0.savefig('isoperinuclearity_levels_1.png', dpi=300)
     plt.show()
 
 def compute_perinuclearity_for_data(target_nucleus_file,
@@ -202,8 +215,21 @@ def compute_perinuclearity_for_data(target_nucleus_file,
     del f2
 
 if __name__ == '__main__':
+    # test_perinuclearity(
+    #         target_nucleus_file='data/MCF7 Control cell/Control/11_C_Black nucleous.tif',
+    #         target_periphery_file='data/MCF7 Control cell/Control/11_C_Black outside.tif',
+    #         target_dic_file="data/MCF7 Control cell/Control/11_MCf7 LT 50nM 30' no NPs bg700 td l250-1700_RGB.tif"
+    # )
+    # test_perinuclearity(
+    #         target_nucleus_file='data/tests/MCF7 Control cell/Control/11_C_Black nucleous.tif',
+    #         target_periphery_file='data/tests/MCF7 Control cell/Control/11_C_Black outside.tif',
+    #         target_dic_file="data/tests/MCF7 Control cell/Control/11_MCf7 LT 50nM 30' no NPs bg700 td l250-1700_RGB.tif",
+    #         target_labels_file="data/tests/MCF7 Control cell/Control/11_MCf7 LT 50nM 30' no NPs bg700 r l1600_RGB.tif"
+    # )
     test_perinuclearity(
-            target_nucleus_file='data/MCF7 Control cell/Control/11_C_Black nucleous.tif',
-            target_periphery_file='data/MCF7 Control cell/Control/11_C_Black outside.tif',
-            target_dic_file="data/MCF7 Control cell/Control/11_MCf7 LT 50nM 30' no NPs bg700 td l250-1700_RGB.tif"
+            target_nucleus_file='data/tests/MCF7 80-20 24h/11 MCF7 8020 24h exp#2 Black nucleous.tif',
+            target_periphery_file='data/tests/MCF7 80-20 24h/11 MCF7 8020 24h exp#2 Black outside.tif',
+            target_dic_file="data/tests/MCF7 80-20 24h/11 MCF7 8020 24h exp#2 bg400 td l250-1500_RGB.tif",
+            target_labels_file="data/tests/MCF7 80-20 24h/11 MCF7 8020 24h exp#2 bg400 r_RGB.tif"
     )
+    # plot_perinuclearity_isolevels()

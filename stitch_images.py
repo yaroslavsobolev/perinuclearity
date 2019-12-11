@@ -32,13 +32,15 @@ def stitch_all_from_folder(target_folder, saveto):
         fileid += 1
     skimage.io.imsave(saveto, image3)
 
-celllines = ["Rat2", "MCF7", "HT1080", "CCD1058sk", "SKBR3", "MEF"]
+# celllines = ["Rat2", "MCF7", "HT1080", "CCD1058sk", "SKBR3", "MEF"]
 folders_list = []
-for cellname in  celllines:
-    folders_list.append('data/{0} Control'.format(cellname))
-    folders_list.append('data/{0} 8020'.format(cellname))
-folders_list.extend(['data/MDA231 8020 12h', 'data/MDA231 8020 24h',
-                     'data/MCF10A 8020 12h', 'data/MCF10A 8020 24h'])
+# for cellname in  celllines:
+#     folders_list.append('data/{0} Control'.format(cellname))
+#     folders_list.append('data/{0} 8020'.format(cellname))
+# folders_list.extend(['data/MDA231 8020 12h', 'data/MDA231 8020 24h',
+#                      'data/MCF10A 8020 12h', 'data/MCF10A 8020 24h'])
+folders_list.extend(['data/MDA231 Control',
+                     'data/MCF10A Control'])
 for folder in folders_list:
     print('Stitching folder: ' + folder)
     stitch_all_from_folder(folder, folder+'_summary.png')
