@@ -4,7 +4,8 @@ to the cell's nucleus or closer to the cell's peripheral membrane
 
 It was developed and used for a research project described in a paper "Targeted crystallization of mixed-charge 
 nanoparticles in lysosomes induces selective death of cancer cells", *Nature*, 2020. See this paper and the
-corresponding Supplementary Information .pdf file for description of how this "perinuclearity"
+corresponding Supplementary Information .pdf file (available from the Nature journal website) 
+for description of how this "perinuclearity"
 measure is defined.
 The raw data used in that project is located in the ```/data``` folder and can be used as an example.
 
