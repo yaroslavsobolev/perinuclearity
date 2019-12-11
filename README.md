@@ -1,4 +1,6 @@
-# perinuclearity
+# Perinuclearity
+[![DOI](https://zenodo.org/badge/180402561.svg)](https://zenodo.org/badge/latestdoi/180402561)
+
 These are Python scripts that process input microscopy images to measure whether labelled organelles are closer 
 to the cell's nucleus or closer to the cell's peripheral membrane
 
